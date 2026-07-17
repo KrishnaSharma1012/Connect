@@ -1,0 +1,64 @@
+services:
+  # 1. Frontend (Static Site)
+  - type: web
+    name: connect-frontend
+    env: static
+    rootDir: connect-frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: connect-backend
+          envVarKey: RENDER_EXTERNAL_URL
+        # Appends /api to the backend URL
+      - key: VITE_ML_API_URL
+        fromService:
+          type: web
+          name: connect-ml
+          envVarKey: RENDER_EXTERNAL_URL
+      # Additional frontend env variables can be added here from the Render dashboard.
+
+  # 2. Backend (Node.js Web Service)
+  - type: web
+    name: connect-backend
+    env: node
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: FRONTEND_URL
+        fromService:
+          type: web
+          name: connect-frontend
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: ML_SERVICE_URL
+        fromService:
+          type: web
+          name: connect-ml
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: PORT
+        value: "10000"
+      # You MUST provide these secrets in the Render Dashboard securely:
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+
+  # 3. ML Service (Python FastAPI Web Service)
+  - type: web
+    name: connect-ml
+    env: python
+    rootDir: connect-ml
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.10.0

@@ -47,30 +47,42 @@ app.use(cookieParser());
 
 
 // DB
-connectDB();
+const startServer = async () => {
+  try {
+    await connectDB();
+    
+    // routes
+    app.use("/api/auth", authRoutes);
+    app.use("/api/users", userRoutes);
+    app.use("/api/posts", postRoutes);
+    app.use("/api/courses", courseRoutes);
+    app.use("/api/sessions", sessionRoutes);
+    app.use("/api/messages", messageRoutes);
+    app.use("/api/connections", connectionRoutes);
+    app.use("/api/earnings", earningRoutes);
+    app.use("/api/admin", adminRoutes);
+    app.use("/api/skill-gap", skillGapRoutes);
+    app.use("/api/p2p", p2pRoutes);
 
-// routes
-app.use("/api/auth", authRoutes);
-app.use("/api/users", userRoutes);
-app.use("/api/posts", postRoutes);
-app.use("/api/courses", courseRoutes);
-app.use("/api/sessions", sessionRoutes);
-app.use("/api/messages", messageRoutes);
-app.use("/api/connections", connectionRoutes);
-app.use("/api/earnings", earningRoutes);
-app.use("/api/admin", adminRoutes);
-app.use("/api/skill-gap", skillGapRoutes);
-app.use("/api/p2p", p2pRoutes);
+    app.get("/api/health", (req, res) => {
+      res.json({ status: "ok" });
+    });
 
-app.get("/api/health", (req, res) => {
-  res.json({ status: "ok" });
-});
+    const PORT = process.env.PORT || 5000;
+    app.listen(PORT, () => {
+      console.log(`✅ Server running on ${PORT}`);
+      
+      // Automatically initialize P2P architecture after DB is connected
+      console.log("[P2P] Auto-initializing network...");
+      initP2PNetwork()
+        .then(result => console.log(`[P2P] Success: ${result.peersAdded} peers seeded.`))
+        .catch(err => console.error("❌ Failed to auto-init P2P:", err.message));
+    });
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on ${PORT}`);
-  // Automatically initialize P2P architecture after DB is likely connected
-  setTimeout(() => {
-    initP2PNetwork().catch(err => console.error("Failed to auto-init P2P:", err));
-  }, 2000);
-});
+  } catch (error) {
+    console.error("❌ Critical Failure: Could not start server due to DB connection error.");
+    process.exit(1);
+  }
+};
+
+startServer();
