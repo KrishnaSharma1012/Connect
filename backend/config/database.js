@@ -3,8 +3,9 @@ import mongoose from "mongoose";
 const connectDB = async () => {
   try {
     const conn = await mongoose.connect(process.env.MONGO_URI, {
-      serverSelectionTimeoutMS: 30000, // Increased to 30s to prevent false timeouts on Render
-      socketTimeoutMS: 45000, 
+      serverSelectionTimeoutMS: 30000, 
+      socketTimeoutMS: 45000,
+      family: 4 // Force IPv4. Atlas free tier doesn't support IPv6 and Node 18+ tries IPv6 first.
     });
 
     console.log(`✅ MongoDB Connected: ${conn.connection.host}/${conn.connection.name}`);
