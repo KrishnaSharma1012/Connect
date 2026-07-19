@@ -24,10 +24,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+import os
+os.environ["OMP_NUM_THREADS"] = "1"
+import torch
+torch.set_num_threads(1)
+
 # ── Load production data on startup ──────────────────────────
 print("Loading model and data...")
 
-model = SentenceTransformer('all-MiniLM-L6-v2')
+model = SentenceTransformer('all-MiniLM-L6-v2', device='cpu')
 
 BASE_DIR = Path(__file__).resolve().parent
 df = pd.read_csv(BASE_DIR / "data" / "processed" / "jobs_production.csv")

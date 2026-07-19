@@ -1,3 +1,5 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch
 pandas
 numpy
 scikit-learn
@@ -5,8 +7,4 @@ sentence-transformers
 fastapi
 uvicorn
 python-dotenv
-jupyter
-matplotlib
-seaborn
-tqdm
 pydantic
