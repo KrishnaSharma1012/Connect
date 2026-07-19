@@ -25,7 +25,6 @@ const __dirname = path.dirname(__filename);
 
 dotenv.config({
   path: path.resolve(__dirname, ".env"),
-  override: true,
 });
 
 const app = express();
