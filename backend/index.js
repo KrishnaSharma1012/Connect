@@ -30,12 +30,17 @@ dotenv.config({
 const app = express();
 
 // middleware
+const allowedOrigins = [
+  "https://connect-six-ebon.vercel.app",
+  process.env.FRONTEND_URL,
+].filter(Boolean);
+
 app.use(cors({
   origin: function (origin, callback) {
-    if (!origin || origin.startsWith('http://connect-six-ebon.vercel.app/') || origin === process.env.FRONTEND_URL) {
+    if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      callback(new Error("Not allowed by CORS"));
     }
   },
   credentials: true,
